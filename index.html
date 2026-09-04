@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Races</title>
+<style>body{max-width:700px;margin:40px auto;font-family:serif;padding:0 20px}</style>
+</head>
+<body>
+
+<h1>Upcoming</h1>
+
+<hr>
+
+<p>Races I'll be doing.</p>
+
+<ul id="upcoming-list"></ul>
+
+<h2>Archive</h2>
+
+<hr>
+
+<p>Races I've done.</p>
+
+<ul id="archive-list"></ul>
+
+<script>
+// Each race has a signup/details link and a results link.
+// date: "YYYY-MM-DD" if known, or null if not yet scheduled/TBD.
+// resultsUrl: fill this in once results are posted; leave null until then.
+// time: finish time (chip time where the timer published one, otherwise gun time).
+// time: optional finish time string (e.g. "3:45:12"). Shown in the archive
+// list when present; omit or leave undefined for races without a known time.
+var races = [
+  { name: "to50run", distance: "50k", date: "2026-09-05", displayDate: "September 5th 2026",
+    signupUrl: "https://to50run.com/", resultsUrl: null },
+  { name: "Georgina Marathon", distance: "42k", date: "2026-09-13", displayDate: "September 13, 2026",
+    signupUrl: "https://raceroster.com/events/2026/111655/georgina-marathon-and-half-marathon", resultsUrl: null },
+  { name: "Copenhagen Half Marathon", distance: "21k", date: "2026-09-20", displayDate: "September 20, 2026",
+    signupUrl: "https://cphhalf.dk/en/wrrc-copenhagen-26/", resultsUrl: null },
+  { name: "Hustle At Pinehurst", distance: "50k", date: "2026-10-04", displayDate: "October 4, 2026",
+    signupUrl: "https://raceroster.com/events/2026/113328/the-hustle-at-pinehurst", resultsUrl: null },
+  { name: "TCS Toronto Waterfront", distance: "21k", date: "2026-10-18", displayDate: "October 18, 2026",
+    signupUrl: "https://raceroster.com/events/2026/111134/2026-tcs-toronto-waterfront-marathon", resultsUrl: null },
+  { name: "Dublin Marathon", distance: "42k", date: "2026-10-25", displayDate: "October 25, 2026",
+    signupUrl: "https://irishlifedublinmarathon.ie/", resultsUrl: null },
+  { name: "Fat Ass Trail Race", distance: "50k", date: "2026-11-15", displayDate: "November 15, 2026",
+    signupUrl: "https://raceroster.com/events/2026/112686/fat-ass-trail-run", resultsUrl: null },
+  { name: "BlackToe Holiday", distance: "10k", date: "2026-12-06", displayDate: "December 6, 2026",
+    signupUrl: "https://raceroster.com/events/2026/114369/blacktoe-holiday-10k", resultsUrl: null },
+  { name: "Black Canyon Ultras", distance: "100k", date: "2027-02-13", displayDate: "February 13, 2027",
+    signupUrl: "https://ultrasignup.com/register.aspx?did=137437", resultsUrl: null },
+  { name: "Sulphur Springs", distance: "100k", date: null, displayDate: "May 2027",
+    signupUrl: "https://www.strawdogracing.com/races/sulphur-springs", resultsUrl: null },
+  { name: "Quebec Mega Trail", distance: "80k", date: "2027-07-02", displayDate: "July 2, 2027",
+    signupUrl: "https://raceroster.com/events/2027/130223/quebec-mega-trail", resultsUrl: null },
+  { name: "Toronto Marathon", distance: "42k", date: "2026-05-03", displayDate: "May 3, 2026",
+    signupUrl: "https://raceroster.com/dashboard/participants/106978",
+    resultsUrl: "https://sportstats.one/event/toronto-marathon/leaderboard/145787?focus=2073&type=bib&tab=stats",
+    time: "2:53:08" },
+  { name: "Tokyo Marathon", distance: "42k", date: "2026-03-01", displayDate: "March 1, 2026",
+    signupUrl: "https://www.marathon.tokyo/en/",
+    resultsUrl: "https://www.marathon.tokyo/2026/result/",
+    time: "3:13:02" },
+  { name: "Exhibition Place Resolution Run", distance: "5k", date: "2026-01-01", displayDate: "January 1, 2026",
+    signupUrl: "https://raceroster.com/dashboard/participants/111970",
+    resultsUrl: "https://results.raceroster.com/v3/events/wdbmjr46ejf3c7q4/race/249749/participant/qfcxdadbjc4ut7z4",
+    time: "18:56" },
+  { name: "BlackToe Holiday 10k", distance: "10k", date: "2025-12-07", displayDate: "December 7, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/101672",
+    resultsUrl: "https://results.raceroster.com/v3/events/qs7e449npvw63a5b/race/249637/participant/9edmzu2vaaqqerkv",
+    time: "37:49" },
+  { name: "Holly Jolly Fun Run", distance: "5k", date: "2025-11-23", displayDate: "November 23, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/98981",
+    resultsUrl: "https://results.raceroster.com/v3/events/cxqgewcfjrdjbtp6/race/248394/participant/7qtr9ufqpsvtyn3w",
+    time: "17:21" },
+  { name: "Summit 700", distance: "50k", date: "2026-07-11", displayDate: "July 11, 2026",
+    signupUrl: "https://raceroster.com/events/2026/111645/2026-summit-700-trail-runs",
+    resultsUrl: "https://results.raceroster.com/v3/events/gbdcdn65e6z4j39f/race/300077/participant/s9d9mzestd3czery",
+    time: "5:28:34" },
+  { name: "The Whole Enchilada", distance: "50k", date: "2026-06-20", displayDate: "June 20, 2026",
+    signupUrl: "https://raceroster.com/dashboard/participants/106662",
+    resultsUrl: "https://results.raceroster.com/v3/events/mgn3mz46f76y2rb6/race/299143/participant/j2e9ykywsek7x47f",
+    time: "4:41:13" },
+  { name: "Sulphur Springs Trail Race", distance: "100k", date: "2026-05-23", displayDate: "May 23, 2026",
+    signupUrl: "https://raceroster.com/dashboard/participants/110203",
+    resultsUrl: "https://results.raceroster.com/v3/events/ufjyfa5gwkmfqmhm/race/302715/participant/2d254sh5nq72wapg",
+    time: "DNF" },
+  { name: "Sporting Life 10K", distance: "10k", date: "2026-05-10", displayDate: "May 10, 2026",
+    signupUrl: "https://raceroster.com/dashboard/participants/112175",
+    resultsUrl: "https://sportstats.one/event/sporting-life-10k-toronto/leaderboard/145797?focus=9472&type=bib&tab=stats",
+    time: "36:31" },
+  { name: "TCS Toronto Waterfront Marathon", distance: "21k", date: "2025-10-18", displayDate: "October 18, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/95235",
+    resultsUrl: "https://sportstats.one/event/toronto-waterfront-marathon/leaderboard/144989?focus=4079&type=bib&tab=stats",
+    time: "3:02:14" },
+  { name: "Georgina Marathon & Half-Marathon", distance: "42k", date: "2025-09-07", displayDate: "September 7, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/94932",
+    resultsUrl: "https://results.raceroster.com/v3/events/k7ntp4wm2zvkm3qz/race/239783/participant/5budn7hanrtd9rp9",
+    time: "2:50:48" },
+  { name: "The Runners Shop Sunset Shuffle", distance: "5k", date: "2025-08-07", displayDate: "August 7, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/103585",
+    resultsUrl: "https://results.raceroster.com/v3/events/ng9gdy5nr5p6e4gs/race/236789/participant/aqhub9nsf2jrkmnp",
+    time: "18:07" },
+  { name: "REV & RUN", distance: "5k", date: "2025-07-18", displayDate: "July 18, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/100744",
+    resultsUrl: "https://results.raceroster.com/v3/events/umyra9gmzjruvmub/race/234830/participant/5fxvs2h7sgak6a76",
+    time: "18:06" },
+  { name: "The Whole Enchilada", distance: "50k", date: "2025-06-21", displayDate: "June 21, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/97266",
+    resultsUrl: "https://results.raceroster.com/v3/events/vuf5xf5432gmm5xy/race/231939/participant/gfjkdj7uf64h2njb",
+    time: "5:05:01" },
+  { name: "Under Armour Toronto 10K", distance: "10k", date: "2025-06-14", displayDate: "June 14, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/95230",
+    resultsUrl: "https://sportstats.one/event/toronto-waterfront-10k/leaderboard/143546?focus=8381&type=bib&tab=stats",
+    time: "37:47" },
+  { name: "Sulphur Springs Trail Race", distance: "50k", date: "2025-05-24", displayDate: "May 24, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/95196",
+    resultsUrl: "https://results.raceroster.com/v3/events/s9v6cbyg2c3m6kps/race/231656/participant/7ntpnc6mvkptq9s9",
+    time: "4:56:46" },
+  { name: "Sporting Life 10K", distance: "10k", date: "2025-05-11", displayDate: "May 11, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/95609",
+    resultsUrl: "https://sportstats.one/event/sporting-life-10k-toronto/leaderboard/143421?focus=9462&type=bib&tab=stats",
+    time: "37:12" },
+  { name: "Toronto Marathon", distance: "42k", date: "2025-05-04", displayDate: "May 4, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/89668",
+    resultsUrl: "https://sportstats.one/event/toronto-marathon/leaderboard/143240?focus=1552&type=bib&tab=stats",
+    time: "2:52:13" },
+  { name: "Chilly Half Marathon", distance: "21k", date: "2025-03-02", displayDate: "March 2, 2025",
+    signupUrl: "https://raceroster.com/dashboard/participants/84601",
+    resultsUrl: "https://sportstats.one/event/chilly-half-marathon-frosty-5km/leaderboard/142919?focus=3141&type=bib&tab=stats",
+    time: "1:23:49" },
+  { name: "BlackToe Holiday 10k", distance: "10k", date: "2024-12-08", displayDate: "December 8, 2024",
+    signupUrl: "https://raceroster.com/dashboard/participants/83626",
+    resultsUrl: "https://results.raceroster.com/v3/events/3p23fyvd7yqz5eas/race/221502/participant/appettv436a6ay53",
+    time: "38:42" },
+  { name: "New York City Marathon", distance: "42k", date: "2024-11-03", displayDate: "November 3, 2024",
+    signupUrl: "https://www.tcsnycmarathon.org/",
+    resultsUrl: "https://results.nyrr.org/event/M2024/result/8361",
+    time: "3:33:25" },
+  { name: "10KTO", distance: "10k", date: "2024-07-14", displayDate: "July 14, 2024",
+    signupUrl: "https://raceroster.com/dashboard/participants/83102",
+    resultsUrl: "https://sportstats.one/event/10kto/leaderboard/141676?focus=2487&type=bib&tab=stats",
+    time: "40:17" },
+  { name: "Toronto Marathon", distance: "42k", date: "2024-05-05", displayDate: "May 5, 2024",
+    signupUrl: "https://raceroster.com/dashboard/participants/75087",
+    resultsUrl: "https://sportstats.one/event/toronto-marathon/leaderboard/130408?focus=2194&type=bib&tab=stats",
+    time: "3:19:34" },
+  { name: "Around the Bay Road Race", distance: "35.4k", date: "2024-03-24", displayDate: "March 24, 2024",
+    signupUrl: "https://raceroster.com/dashboard/participants/76924",
+    resultsUrl: "https://results.raceroster.com/v3/events/p2pp3v7rvkgqe49c/race/191814/participant/rgcx6fbpr37ar49z",
+    time: "2:57:25" },
+  { name: "BlackToe Holiday 10km", distance: "10k", date: "2023-12-03", displayDate: "December 3, 2023",
+    signupUrl: "https://raceroster.com/dashboard/participants/75859",
+    resultsUrl: "https://results.raceroster.com/v3/events/mvc52u2zrfc4gbf2/race/187920/participant/rqbs3zyfa7xhqpa6",
+    time: "42:12" },
+  { name: "TCS Toronto Waterfront Marathon", distance: "21k", date: "2023-10-15", displayDate: "October 15, 2023",
+    signupUrl: "https://raceroster.com/dashboard/participants/65909",
+    resultsUrl: "https://sportstats.one/event/toronto-waterfront-marathon/leaderboard/129771?focus=11284&type=bib&tab=stats",
+    time: "1:38:59" },
+  { name: "Toronto Marathon", distance: "21k", date: "2023-05-07", displayDate: "May 7, 2023",
+    signupUrl: "https://raceroster.com/dashboard/participants/77568",
+    resultsUrl: "https://sportstats.one/event/toronto-marathon/leaderboard/128526?focus=10296&type=bib&tab=stats",
+    time: "2:00:44" }
+];
+
+(function () {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  function isPast(race) {
+    if (!race.date) return false; // unknown dates always stay in "Upcoming"
+    return new Date(race.date + "T00:00:00") < today;
+  }
+
+  var upcoming = races.filter(function (r) { return !isPast(r); });
+  var past = races.filter(isPast);
+
+  // Upcoming: soonest first. Undated races sort to the end.
+  upcoming.sort(function (a, b) {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+
+  // Archive: most recent first.
+  past.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+
+  function render(list, race, showTime) {
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = race.resultsUrl || race.signupUrl;
+    var label = race.name + " - " + race.distance + " - " + race.displayDate;
+    if (showTime && race.time) {
+      label += " - (" + race.time + ")";
+    }
+    a.textContent = label;
+    li.appendChild(a);
+    list.appendChild(li);
+  }
+
+  var upcomingList = document.getElementById("upcoming-list");
+  var archiveList = document.getElementById("archive-list");
+  upcoming.forEach(function (r) { render(upcomingList, r, false); });
+  past.forEach(function (r) { render(archiveList, r, true); });
+})();
+</script>
+
+</body>
+</html>
